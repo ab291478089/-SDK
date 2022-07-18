@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xy-monitor-web-example</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.13.2/lib/theme-chalk/index.css" />
+</head>
+
+<body>
+  <div id="app">
+    <section>
+      <h2>jsError</h2>
+      <div>
+        <el-button onClick="onJsError()">test</el-button>
+      </div>
+
+      <h2>batchErrors</h2>
+      <p>This event will combine errors to emit together in a while time (could be config), default is 1 second</p>
+      <div>
+        <el-button onClick="onJsError1()">Hit this button fast</el-button>
+      </div>
+
+      <h2>ajax</h2>
+      <div>
+        <el-button @click="onSyncAjaxSuccess">origin sync req success</el-button>
+        <el-button @click="onAsyncAjaxSuccess">origin async req success</el-button>
+        <el-button @click="onJquerySyncAjaxSuccess">jquery sync req success</el-button>
+        <el-button @click="onJqueryAsyncAjaxSuccess">jquery async req success</el-button>
+        <el-button @click="onAjax404Error">req 404</el-button>
+        <el-button @click="onAjax500Error">req 500</el-button>
+        <el-button @click="onAjaxTimeoutError">req timeout</el-button>
+      </div>
+
+      <h2>fetch</h2>
+      <div>
+        <el-button @click="onFetchSuccess">fetch success</el-button>
+        <el-button @click="onFetch404Error">fetch 404</el-button>
+        <el-button @click="onFetch500Error">fetch 500</el-button>
+      </div>
+
+      <h2>promise</h2>
+      <div>
+        <el-button @click="onPromiseError">promise error</el-button>
+      </div>
+
+      <h2>resource load</h2>
+      <div>
+        <el-button @click="onLoadJsError">load js error</el-button>
+        <el-button @click="onLoadCssError">load css error</el-button>
+        <el-button @click="onLoadImageError">load image error</el-button>
+      </div>
+      <!--2. 添加路由链接-->
+      <router-link to="/user">User</router-link>
+      <router-link to="/register">Register</router-link>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.24.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-router@3.0.3/dist/vue-router.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/element-ui@2.13.2/lib/index.js"></script>
+  <script src="/dist/index.umd.js"></script>
+
+  <script>
+    let monitor = MonitorWeb.Monitor.init({
+      report: {
+        url: "http://localhost:3000/api/reportUrl",  // 上报地址
+        method: "POST",
+        contentType: "application/json",
+        beforeSend: (data) => data // 请求发送前报告数据，支持自定义上报数据
+      },
+      error: {
+        repeat: 10
+      },
+      performance: true,
+      behavior: {
+        watch: true,
+        click: true,  // 如果设置为 true 将监听所有 dom 点击事件
+        queueLimit: 20 // 限制行为队列为 20 
+      },
+      isSpa: true
+    });
+
+    // 不建议监听所有事件 demo展示
+    monitor.on("event", (eventName, emitData) => {
+      console.log(eventName, emitData);
+    });
+// 4-1. 定义路由组件--User组件
+const User = {
+      template: '<h1>User 组件</h1>'
+    }
+
+    // 4-2. 定义路由组件--Register组件
+    const Register = {
+      template: '<h1>Register 组件</h1>'
+    }
+     // 5.创建Vue-Router组件对象并配置路由规则
+     const pathRouter = new VueRouter({
+      routes: [
+        {path: '/user', component: User},
+        {path: '/register', component: Register}
+      ]
+    });
+    new Vue({
+      el: "#app",
+      router: pathRouter,
+      methods: {
+        onAjax500Error() {
+          const xhr = new XMLHttpRequest();
+          xhr.withCredentials = true;
+          xhr.open("get", "/api/500", true);
+          xhr.send();
+        },
+        onSyncAjaxSuccess() {
+          const xhr = new XMLHttpRequest();
+          xhr.open("get", "/api/success", false);
+          xhr.send();
+        },
+        onJquerySyncAjaxSuccess() {
+          $.ajax({
+            url: '/api/success',
+            async: false,
+          })
+        },
+        onAsyncAjaxSuccess() {
+          const xhr = new XMLHttpRequest();
+          xhr.open("get", "/api/success", true);
+          xhr.send();
+        },
+        onJqueryAsyncAjaxSuccess() {
+          $.ajax({
+            url: '/api/success',
+            async: true,
+          })
+        },
+        onAjax404Error() {
+          const xhr = new XMLHttpRequest();
+          xhr.withCredentials = true;
+          xhr.open("get", "/api/404", true);
+          xhr.send();
+        },
+        onAjaxTimeoutError() {
+          const xhr = new XMLHttpRequest();
+          xhr.withCredentials = true;
+          xhr.timeout = 30;
+          xhr.open("get", "/api/timeout", true);
+          xhr.send();
+        },
+        onLoadJsError() {
+          const script = document.createElement("script");
+          script.setAttribute("src", "/js/undefined.js");
+          document.body.appendChild(script);
+        },
+        onLoadCssError() {
+          const link = document.createElement("link");
+          link.setAttribute("rel", "stylesheet");
+          link.setAttribute("href", "/css/undefined.css");
+          document.head.appendChild(link);
+        },
+        onLoadImageError() {
+          const image = document.createElement("img");
+          image.setAttribute("src", "/img/undefined.png");
+          document.body.appendChild(image);
+        },
+        onFetchSuccess() {
+          fetch("/api/success");
+        },
+        onFetch404Error() {
+          fetch("/api/404");
+        },
+        onFetch500Error() {
+          fetch("/api/500");
+        },
+        onPromiseError() {
+          new Promise((resolve, reject) => {
+            reject("something wrong");
+          });
+        }
+      }
+    });
+  </script>
+
+  <script>
+    function onJsError() {
+      throw new Error("jsError");
+    }
+    function onJsError1() {
+      throw new Error("jsError1");
+    }
+  </script>
+</body>
+
+</html>

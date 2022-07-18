@@ -1,0 +1,61 @@
+{
+  "name": "xy-monitor-web",
+  "version": "1.0.0",
+  "description": "A Lite SDK For XY Monitor Web",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon --watch server --exec \"npx ts-node --project tsconfig.server.json ./server/app.ts\"",
+    "clean": "shx rm -rf dist coverage .rpt2_cache",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run clean && npm run build:esm && npm run build:umd && npm run build:min",
+    "build:esm": "cross-env NODE_ENV=production EXTERNAL=1 rollup -c -f esm -o dist/index.js",
+    "build:umd": "cross-env NODE_ENV=production rollup -c -f umd -o dist/index.umd.js",
+    "build:min": "cross-env NODE_ENV=production MINIFY=1 rollup -c -f umd -o dist/index.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://gitlab.quvideo.com/lixiang/monitor-web.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "deepcopy": "^2.1.0",
+    "deepmerge": "^4.2.2",
+    "error-stack-parser": "^2.0.6",
+    "events": "^3.3.0",
+    "json-stringify-safe": "^5.0.1",
+    "mobile-detect": "^1.4.5",
+    "object-to-formdata": "^4.4.1",
+    "query-string": "^7.0.0",
+    "tslib": "^2.3.1"
+  },
+  "devDependencies": {
+    "@koa/cors": "^3.1.0",
+    "@rollup/plugin-babel": "^5.2.0",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@rollup/plugin-replace": "^2.3.3",
+    "@types/assert": "^1.5.1",
+    "@types/json-stringify-safe": "^5.0.0",
+    "@types/koa": "^2.13.1",
+    "@types/koa-router": "^7.4.2",
+    "@types/koa-static": "^4.0.1",
+    "@types/koa__cors": "^3.0.2",
+    "koa": "^2.13.1",
+    "koa-router": "^10.0.0",
+    "koa-static": "^5.0.0",
+    "koa-views": "^7.0.1",
+    "nodemon": "^2.0.7",
+    "power-assert": "^1.6.1",
+    "rollup": "^2.26.5",
+    "rollup-plugin-terser": "^7.0.0",
+    "rollup-plugin-typescript2": "^0.27.2",
+    "ts-loader": "^8.0.3",
+    "typescript": "^4.0.2",
+    "shx": "^0.3.2",
+    "cross-env": "^7.0.2"
+
+  }
+}
